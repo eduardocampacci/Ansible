@@ -5,18 +5,18 @@
   user: root
 
   tasks:
-   - name: Download bootstrap.sh
-     get_url:
-             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
-             dest: /root/install/pacotes/bootstrap.sh
+#   - name: Download bootstrap.sh
+#     get_url:
+#             url: https://git.samba.org/?p=samba.git;a=blob_plain;f=bootstrap/generated-dists/centos7/bootstrap.sh;hb=master
+#             dest: /root/install/pacotes/bootstrap.sh
 
-   - name: Permissao de execucao bootstrap.sh
-     file:
-          path: /root/install/pacotes/bootstrap.sh
-          mode: '0755'
+#   - name: Permissao de execucao bootstrap.sh
+#     file:
+#          path: /root/install/pacotes/bootstrap.sh
+#          mode: '0755'
 
-   - name: Instalacao de dependencias
-     shell: sh /root/install/pacotes/bootstrap.sh
+#   - name: Instalacao de dependencias
+#     shell: /root/install/pacotes/bootstrap.sh
 
    - name: Download pacote recente do samba-4
      shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
@@ -54,18 +54,18 @@
   user: root
 
   tasks:
-   - name: Download bootstrap.sh
-     get_url:
-             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
-             dest: /root/install/pacotes/bootstrap.sh
+#   - name: Download bootstrap.sh
+#     get_url:
+#             url: https://git.samba.org/?p=samba.git;a=blob_plain;f=bootstrap/generated-dists/centos7/bootstrap.sh;hb=master
+#             dest: /root/install/pacotes/bootstrap.sh
 
-   - name: Permissao de execucao bootstrap.sh
-     file:
-          path: /root/install/pacotes/bootstrap.sh
-          mode: '0755'
+#   - name: Permissao de execucao bootstrap.sh
+#     file:
+#          path: /root/install/pacotes/bootstrap.sh
+#          mode: '0755'
 
-   - name: Instalacao de dependencias
-     shell: sh /root/install/pacotes/bootstrap.sh
+#   - name: Instalacao de dependencias
+#     shell: cd /root/install/pacotes && ./bootstrap.sh
 
    - name: Download pacote recente do samba-4
      shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
@@ -103,18 +103,18 @@
   user: root
 
   tasks:
-   - name: Download bootstrap.sh
-     get_url:
-             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
-             dest: /root/install/pacotes/bootstrap.sh
+#   - name: Download bootstrap.sh
+#     get_url:
+#             url: https://git.samba.org/?p=samba.git;a=blob_plain;f=bootstrap/generated-dists/centos7/bootstrap.sh;hb=master
+#             dest: /root/install/pacotes/bootstrap.sh
 
-   - name: Permissao de execucao bootstrap.sh
-     file:
-          path: /root/install/pacotes/bootstrap.sh
-          mode: '0755'
+#   - name: Permissao de execucao bootstrap.sh
+#     file:
+#          path: /root/install/pacotes/bootstrap.sh
+#          mode: '0755'
 
-   - name: Instalacao de dependencias
-     shell: sh /root/install/pacotes/bootstrap.sh
+#   - name: Instalacao de dependencias
+#     shell: cd /root/install/pacotes && ./bootstrap.sh
 
    - name: Download pacote recente do samba-4
      shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
