@@ -3,52 +3,23 @@
 ### CONTROLADOR DE DOMINIO SLAVE
 - hosts: 192.168.1.32
   user: root
-  
+
   tasks:
+   - name: Download bootstrap.sh
+     get_url:
+             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
+             dest: /root/install/pacotes/bootstrap.sh
+
+   - name: Permissao de execucao bootstrap.sh
+     file:
+          path: /root/install/pacotes/bootstrap.sh
+          mode: '0755'
+
    - name: Instalacao de dependencias
-     shell: wget https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master -O /root/install/pacotes/bootstrap.sh && chmod +x /root/install/pacotes/bootstrap.sh && /root/install/pacotes/bootstrap.sh
-          
+     shell: sh /root/install/pacotes/bootstrap.sh
+
    - name: Download pacote recente do samba-4
-     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz 
-   
-   - name: Descompactar pacote samba-4
-     shell: cd /root/install && tar xvzf samba*
-
-   - name: Parando os servicos do samba4
-     shell: systemctl stop samba-ad-dc
-
-   - name: Update do samba4
-     shell: cd /root/install/samba* && ./configure && make && make install
-
-   - name: Organizando pacotes e pastas
-     shell: mv /root/install/samba* /root/install/pacotes && rm -rf /root/install/pacotes/samba-latest.tar.gz
-
-   - name: Iniciando o servico do samba4
-     shell: systemctl start samba-ad-dc && systemctl restart samba-ad-dc 
-
-   - name: Checando os databases
-     shell: samba-tool dbcheck --cross-ncs && samba-tool dbcheck --cross-ncs --fix
-
-   - name: Reiniciando o servidor
-     shell: sleep 2 && reboot -n 
-     async: 1
-     poll: 0
-     ignore_errors: true
-
-   - name: Esperando o servidor voltar
-     local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
-
-
-### CONTROLADOR DE DOMINIO MASTER
-- hosts: 192.168.1.31
-  user: root
-
-  tasks:
-   - name: Instalacao de dependencias
-     shell: wget https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master -O /root/install/pacotes/bootstrap.sh && chmod +x /root/install/pacotes/bootstrap.sh && /root/install/pacotes/bootstrap.sh
-       
-   - name: Download pacote recente do samba-4 
-     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz 
+     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
 
    - name: Descompactar pacote samba-4
      shell: cd /root/install && tar xvzf samba*
@@ -69,7 +40,56 @@
      shell: samba-tool dbcheck --cross-ncs && samba-tool dbcheck --cross-ncs --fix
 
    - name: Reiniciando o servidor
-     shell: sleep 2 && reboot -n 
+     shell: sleep 2 && reboot -n
+     async: 1
+     poll: 0
+     ignore_errors: true
+
+   - name: Esperando o servidor voltar
+     local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
+
+
+### CONTROLADOR DE DOMINIO MASTER
+- hosts: 192.168.1.31
+  user: root
+
+  tasks:
+   - name: Download bootstrap.sh
+     get_url:
+             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
+             dest: /root/install/pacotes/bootstrap.sh
+
+   - name: Permissao de execucao bootstrap.sh
+     file:
+          path: /root/install/pacotes/bootstrap.sh
+          mode: '0755'
+
+   - name: Instalacao de dependencias
+     shell: sh /root/install/pacotes/bootstrap.sh
+
+   - name: Download pacote recente do samba-4
+     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
+
+   - name: Descompactar pacote samba-4
+     shell: cd /root/install && tar xvzf samba*
+
+   - name: Parando os servicos do samba4
+     shell: systemctl stop samba-ad-dc
+
+   - name: Update do samba4
+     shell: cd /root/install/samba* && ./configure && make && make install
+
+   - name: Organizando pacotes e pastas
+     shell: mv /root/install/samba* /root/install/pacotes && rm -rf /root/install/pacotes/samba-latest.tar.gz
+
+   - name: Iniciando o servico do samba4
+     shell: systemctl start samba-ad-dc && systemctl restart samba-ad-dc
+
+   - name: Checando os databases
+     shell: samba-tool dbcheck --cross-ncs && samba-tool dbcheck --cross-ncs --fix
+
+   - name: Reiniciando o servidor
+     shell: sleep 2 && reboot -n
      async: 1
      poll: 0
      ignore_errors: true
@@ -83,17 +103,27 @@
   user: root
 
   tasks:
+   - name: Download bootstrap.sh
+     get_url:
+             url: https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master
+             dest: /root/install/pacotes/bootstrap.sh
+
+   - name: Permissao de execucao bootstrap.sh
+     file:
+          path: /root/install/pacotes/bootstrap.sh
+          mode: '0755'
+
    - name: Instalacao de dependencias
-     shell: wget https://git.samba.org/\?p\=samba.git\;a\=blob_plain\;f\=bootstrap/generated-dists/centos7/bootstrap.sh\;hb\=master -O /root/install/pacotes/bootstrap.sh && chmod +x /root/install/pacotes/bootstrap.sh && /root/install/pacotes/bootstrap.sh
-       
-   - name: Download pacote recente do samba-4 
-     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz 
+     shell: sh /root/install/pacotes/bootstrap.sh
+
+   - name: Download pacote recente do samba-4
+     shell: cd /root/install && wget https://download.samba.org/pub/samba/samba-latest.tar.gz
 
    - name: Descompactar pacote samba-4
      shell: cd /root/install && tar xvzf samba*
 
    - name: Parando os servicos do samba4
-     shell: pkill smbd && pkill nmbd && pkill winbindd 
+     shell: pkill smbd && pkill nmbd && pkill winbindd
 
    - name: Update do samba4
      shell: cd /root/install/samba* && ./configure --without-ad-dc && make && make install
@@ -102,7 +132,7 @@
      shell: mv /root/install/samba* /root/install/pacotes
 
    - name: Iniciando o servico do samba4
-     shell: /usr/local/samba/sbin/smbd && /usr/local/samba/sbin/nmbd && /usr/local/samba/sbin/winbindd 
+     shell: /usr/local/samba/sbin/smbd && /usr/local/samba/sbin/nmbd && /usr/local/samba/sbin/winbindd
 
 #   - name: Reiniciando o servidor
 #     shell: sleep 2 && reboot -n
@@ -114,4 +144,4 @@
 #     local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
 
 
-... 
+...
