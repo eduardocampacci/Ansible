@@ -1,0 +1,94 @@
+---
+
+### CONTROLADOR DE DOMINIO SLAVE
+- hosts: samba_teste 
+  user: root
+  
+  tasks:
+    
+    - name: Importacao de ajustes padroes.
+        import_playbook: ajustes_padroes.yml 
+
+    - name: instalacao de dependencias do samba4
+      shell: yum -y install attr bind-utils docbook-style-xsl gcc gdb krb5-workstation libsemanage-python libxslt perl perl-ExtUtils-MakeMaker perl-Parse-Yapp perl Test-Base pkgconfig policycoreutils-python python-crypto gnutls-devel libattr-devel keyutils-libs-devel libacl-devel libaio-devel libblkid-devel libxml2-devel openldap-devel pam-devel popt-devel python-devel readline-devel zlib-devel systemd-devel bind bind-utils bind-sdb
+
+    - name: Download pacote recente do samba-4
+      shell: cd /root && wget https://download.samba.org/pub/samba/samba-latest.tar.gz 
+   
+    - name: Descompactar pacote samba4
+      shell: cd /root && tar xvzf samba*
+
+    - name: Instalacao do samba4
+      shell: cd /root/samba* && ./configure && make && make install
+
+    - name: Removendo download do samba4
+      shell: rm -rf /root/samba-latest.tar.gz
+
+    - name: Adicionando os binarios do samba a variavel PATH.
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/samba.sh
+        dest: /etc/profile.d/samba.sh
+        owner: root
+        group: root
+        mode: 0644
+ 
+    - name: Atualizando a variavel PATH.
+      shell: source /etc/profile.d/samba.sh 
+     
+    - name: Criando script de inicializacao.
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/samba-ad-dc.service
+        dest: /etc/systemd/system/samba-ad-dc.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Recarregando as configurações do systemd.
+      shell: systemctl daemon-reload 
+     
+    - name: Habilitando o samba para inicializar junto com o sistema.
+      shell: systemctl enable samba-ad-dc 
+     
+    - name: Ajuste do BIND.
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/named.conf
+        dest: /etc/named.conf
+        owner: root
+        group: root
+        mode: 0644 
+
+    - name: Habilitando o named para iniciar com o sistema.
+      shell: systemctl enable named
+
+    - name: Ajuste do kerberos.  
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/krb5.conf
+        dest: /etc/krb5.conf
+        owner: root
+        group: root
+        mode: 0644 
+  
+    - name: Ajuste do DNS.  
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/resolv.conf
+        dest: /etc/resolv.conf
+        owner: root
+        group: root
+        mode: 0644 
+  
+    - name: Ajuste do arquivo hosts.
+      shell: echo "192.168.1.1     samba.hweqlt.com.br     samba" >> /etc/hosts
+     
+    - name: Reiniciando o servidor
+      shell: sleep 2 && reboot -n 
+      async: 1
+      poll: 0
+      ignore_errors: true
+
+    - name: Esperando o servidor voltar
+      local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
+
+
+
+
+... 

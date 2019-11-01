@@ -1,0 +1,110 @@
+-----------------------------------------------------
+### Em Windows 10
+-----------------------------------------------------
+-----------------------------------------------------
+
+1 - Habilitar a execução de scripts no PowerShell.
+
+- Abra o PowerShell como Administrador.
+# Set-ExecutionPolicy Unrestricted
+pressione Enter e depois digite "S" para confirmar.
+-----------------------------------------------------
+
+2 - Execute o script ConfigureRemotingForAnsible.ps1.
+
+/home/eduardo/Dropbox/Linux/Minhas implementações/17 - Ansible/Projeto/Modulos/Windows/Scripts PowerShell/ConfigureRemotingForAnsible.ps1
+
+Obs.: Ele gera um certificado auto assinado, configura um listener SSL no WinRM na porta 5986 (5985 é a padrão sem SSL), e libera essa porta no firewall para as redes privadas.
+
+
+-----------------------------------------------------
+
+
+
+
+-----------------------------------------------------
+### Em Windows 7
+-----------------------------------------------------
+-----------------------------------------------------
+
+1 - Habilitar a execução de scripts no PowerShell.
+
+- Abra o PowerShell como Administrador.
+# Set-ExecutionPolicy Unrestricted
+pressione Enter e depois digite "S" para confirmar.
+-----------------------------------------------------
+
+2 - Execute os scripts na seguinte sequencia.: 
+
+
+    1 - Upgrade-PowerShell.ps1.
+    2 - Install-WMF3Hotfix.ps1
+    3 - ConfigureRemotingForAnsible.ps1.
+
+/home/eduardo/Dropbox/Linux/Minhas implementações/17 - Ansible/Projeto/Modulos/Windows/Scripts PowerShell/
+
+Obs.: Ele gera um certificado auto assinado, configura um listener SSL no WinRM na porta 5986 (5985 é a padrão sem SSL), e libera essa porta no firewall para as redes privadas.
+
+
+-----------------------------------------------------
+
+
+
+
+
+
+-----------------------------------------------------
+### Em Linux
+-----------------------------------------------------
+-----------------------------------------------------
+1 - No host linux, onde esta o ansible.
+
+# pip install "pywinrm>=0.2.2"
+-----------------------------------------------------
+
+2 - Crie a pasta e arquivo para as variaveis do windows.
+
+# mkdir /etc/ansible/group_vars
+# vim /etc/ansible/group_vars/windows.yml
+
+cole o conteudo abaixo.:
+
+ansible_user: admin 
+ansible_password: fki#@!5991
+ansible_port: 5986
+ansible_connection: winrm
+ansible_winrm_server_cert_validation: ignore
+
+Obs.: O conteudo a cima, funciona com contas de usuarios locais. 
+-----------------------------------------------------
+
+3 - Para utilizar uma conta do dominio, crie a pasta e arquivo para as variaveis do windows. E inclua o modo ntlm.
+
+# mkdir /etc/ansible/group_vars
+# vim /etc/ansible/group_vars/windows.yml
+
+cole o conteudo abaixo.:
+
+ansible_user: HEEQLT\admin
+ansible_password: fki#@!5991
+ansible_port: 5986
+ansible_connection: winrm
+ansible_winrm_server_cert_validation: ignore
+ansible_winrm_transport: ntlm
+
+Obs.: O conteudo a cima, funciona com contas de usuarios do dominio.
+
+
+
+
+
+
+
+-----------------------------------------------------
+### Fontes
+-----------------------------------------------------
+-----------------------------------------------------
+
+https://medium.com/enterstone/ansible-windows-o-b%C3%A1sico-ntlm-dsc-e-mais-d7af4a2233e7
+https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
+http://docs.ansible.com/ansible/latest/list_of_windows_modules.html
