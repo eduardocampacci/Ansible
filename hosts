@@ -5,18 +5,10 @@
 
 [debian]
 192.168.1.254:839 # Firewall
-192.168.0.2:839   # Servidor de arquivos Osasco
 
 [centos]
 192.168.1.1:839	  # NFS das VMs
 192.168.1.253:839 # Contingencia NFS e Firewall
-192.168.0.1:839   # Firewall Osasco
-192.168.0.3:839   # Backup Osasco
-
-###--- Hypervisor 
-#192.168.1.28 # Slave hyper03
-#192.168.1.30 # Slave hyper02
-#192.168.1.29 # Master hyper01
 
 
 ###--- Maquinas Virtuais 
@@ -24,14 +16,14 @@
 192.168.1.4:839  # Aplicacao 
 192.168.1.6:839  # DHCP
 192.168.1.27:839 # Banco de dados
-192.168.1.31:839 # DC Master
-192.168.1.32:839 # DC Slave
+#192.168.1.31:839 # DC Master
+#192.168.1.32:839 # DC Slave
 192.168.1.39:839 # Bacula
 
 ###--- Samba4 
 [samba4]
-192.168.1.31:839 # DC Master
-192.168.1.32:839 # DC Slave
+#192.168.1.31:839 # DC Master
+#192.168.1.32:839 # DC Slave
 192.168.1.1:839  # NFS das VMs e Fileserver
 
 ###--- Estacoes de trabalho Windows -----###
