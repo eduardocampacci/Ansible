@@ -26,7 +26,7 @@
        synchronize:
            mode: pull
            src: /home/eduardo/Downloads/.zshrc
-           dest: /home/eduardo/
+           dest: /home/eduardo/.zshrc
            recursive: yes
            delete: yes
            group: yes
