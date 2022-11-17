@@ -1,0 +1,19 @@
+---
+
+# Sincronização dos arquivos de paginas web. 
+- hosts: 192.168.1.4
+  user: root
+
+  tasks:
+
+     - name: RSYNC paginas web
+       ansible.posix.synchronize:
+           mode: pull
+           src: /var/www
+           dest: /home/eduardo/bkp_servidores/{{ansible_nodename}}
+           recursive: yes
+           delete: yes
+           links: yes
+           #compress: yes
+
+...

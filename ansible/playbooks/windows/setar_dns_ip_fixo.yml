@@ -1,0 +1,14 @@
+---
+
+- hosts: windows 
+  
+  tasks:
+          #- name: Setando os DNS 
+        - win_dns_client:
+            adapter_names: "Conexão de Rede sem Fio"
+            ipv4_addresses:
+            - 192.168.1.31
+            - 192.168.1.32
+            log_path: c:\dns_log.txt
+          
+...

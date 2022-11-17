@@ -1,0 +1,80 @@
+---
+# Dump do banco de dados MySQL
+- hosts: 192.168.1.27
+  user: root
+
+  tasks:
+    - name: Dump do banco de dados MySQL
+      mysql_db:
+          login_user: root
+          login_password: boreal1408psql
+          state: dump
+          name: all
+          target: /root/mariadb.sql
+
+# Dump do banco de dados PostgreSQL 
+- hosts: 192.168.1.27
+  user: root
+
+  tasks:
+    - name: Dump do banco de dados PostgreSQL
+      postgresql_db:
+          login_user: postgres
+          #login_password: boreal1408psql 
+          state: dump
+          name: bacula
+          target: /root/postgresql.sql
+
+
+# Sincronização dos arquivos de paginas web. 
+- hosts: 192.168.1.4
+  user: root
+
+  tasks:
+     - name: RSYNC paginas web
+       ansible.posix.synchronize:
+           mode: pull
+           src: "{{ item.src }}"
+           dest: /home/eduardo/bkp_servidores/{{ansible_nodename}}
+           recursive: yes
+           delete: yes
+           group: yes
+           links: yes
+           owner: yes
+           perms: yes
+           times: yes
+           compress: yes
+       with_items:
+           - {src: '/etc', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/opt', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/home', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/usr/local', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/root', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/var/www', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+
+# Sincronização de todos os arquivos importantes dos servidores
+- hosts: debian vms
+  user: root
+
+  tasks:
+     - name: RSYNC Slackware, Debian e VMs
+       ansible.posix.synchronize:
+           mode: pull
+           src: "{{ item.src }}"
+           dest: "{{ item.dest }}"
+           recursive: yes
+           delete: yes
+           group: yes
+           links: yes
+           owner: yes
+           perms: yes
+           times: yes
+           compress: yes
+       with_items:
+           - {src: '/etc', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/opt', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/home', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/usr/local', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/root', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           
+...
