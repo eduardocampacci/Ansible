@@ -1,2 +1,0 @@
-# ansible
-Alguns playbooks pessoais.

@@ -1,6 +1,0 @@
-
-Pingando maquinas linux.
-# ansible nome_host_ou_IP -m ping 
-
-Pingando maquinas windows.
-# ansible nome_host_ou_IP -m win_ping 
