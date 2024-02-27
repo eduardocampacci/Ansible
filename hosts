@@ -1,0 +1,27 @@
+[slackware]
+192.168.1.2:839 # Controlador de dominio
+
+[debian]
+192.168.1.3:839		# Fileserver_sec
+192.168.1.4:839		# Aplicacao
+192.168.1.5:839		# Fileserver
+192.168.1.6:839		# Printserver
+192.168.1.27:839	# Banco de Dados
+192.168.1.39:839	# Bacula
+192.168.1.40:839	# dc1
+192.168.1.41:839	# dc2
+#192.168.1.254:839       # Firewall
+ 
+[samba4]
+192.168.1.41:839	# DC2
+192.168.1.40:839	# DC1
+192.168.1.3:839		# Fileserver_sec
+192.168.1.5:839		# Fileserver
+192.168.1.6:839		# Printserver
+
+[proxmox]
+192.168.1.30		# PV1
+
+[windows]
+192.168.1.9		#vmeduardo
+ 

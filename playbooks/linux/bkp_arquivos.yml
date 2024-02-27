@@ -1,0 +1,27 @@
+---
+# Sincronização de todos os arquivos importantes dos servidores
+- hosts: 192.168.1.5
+  user: root
+
+  tasks:
+     - name: Servidor de Arquivos
+       ansible.posix.synchronize:
+           mode: pull
+           src: "{{ item.src }}"
+           dest: "{{ item.dest }}"
+           recursive: yes
+           delete: yes
+           group: yes
+           links: yes
+           owner: yes
+           perms: yes
+           times: yes
+           compress: yes
+       with_items:
+           - {src: '/etc', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/opt', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/home', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/usr/local', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+           - {src: '/root', dest: '/home/eduardo/bkp_servidores/{{ansible_nodename}}'}
+
+...

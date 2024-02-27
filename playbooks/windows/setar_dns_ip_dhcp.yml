@@ -1,0 +1,11 @@
+---
+
+- hosts: windows 
+  
+  tasks:
+          #- name: Setando os DNS 
+        - win_dns_client:
+            adapter_names: "*"
+            ipv4_addresses: []
+          
+...

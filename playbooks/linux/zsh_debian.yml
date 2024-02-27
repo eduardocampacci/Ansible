@@ -1,0 +1,39 @@
+---
+
+- hosts: localhost
+
+  tasks:
+
+    - name: Atualizacao repositorio Debian
+      apt: update_cache=yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Atualizacao sistema Debian
+      apt: upgrade=dist
+      when: ansible_os_family == 'Debian'
+
+    - name: Instação de lista de pacotes
+      apt:
+        pkg:
+        - zsh
+        - zsh-theme-powerlevel9k
+        - zsh-syntax-highlighting
+
+    - name: Instalação do Oh-My-ZSH
+      shell: sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+    - name: Sincroniza arquivo .zshrc
+      synchronize:
+          mode: pull
+          src: /home/eduardo/Downloads/.zshrc
+          dest: /home/eduardo/.zshrc
+          recursive: yes
+          delete: yes
+          group: yes
+          links: yes
+          owner: yes
+          perms: yes
+          times: yes
+          compress: yes
+   
+...

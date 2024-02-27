@@ -1,0 +1,13 @@
+---
+
+- hosts: debian slackware windows
+
+  tasks:
+    - name: Ping dos servidores
+      ping:
+      register: pingresult
+
+#    - name: Resultado ping dos servidores
+#      debug:
+#      var: pingresult
+...

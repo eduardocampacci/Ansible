@@ -1,0 +1,11 @@
+---
+
+- hosts: windows 
+
+  tasks:
+        - name: Criacao de arquivo
+          win_file:
+             path: C:\teste.conf
+             state: touch
+
+...

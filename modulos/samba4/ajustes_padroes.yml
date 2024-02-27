@@ -1,0 +1,59 @@
+---
+
+### AJUSTES PADROES CENTOS e DEBIAN
+
+- hosts: samba_teste 
+  user: root
+
+  tasks:
+
+    - name: Atualizacao repositorio Debian.
+      apt: update_cache=yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Atualizacao sistema Debian.
+      apt: upgrade=dist
+      when: ansible_os_family == 'Debian'
+
+    - name: Atualizacao sistema RedHat.
+      yum: name=* state=latest
+      when: ansible_os_family == 'RedHat'
+
+    - name: Instalacao de pacotes ntp, vim e wget CentOS.
+      yum:
+        name: ntp,vim,wget
+        state: latest 
+      when: ansible_os_family == 'RedHat'
+
+    - name: Instalacao de pacotes ntp, vim e wget Debian.
+      apt:
+        name: ntp,vim,wget
+        state: latest 
+      when: ansible_os_family == 'Debian'
+
+    - name: Ajuste do arquivo NTP.
+      copy:
+        src: /home/eduardo/ansible/instalacao_samba4/ntp.conf
+        dest: /etc/ntp.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Desativacao dos servicos de firewall e networkmanager no CentOS.
+      shell: systemctl stop firewalld && systemctl disable firewalld && systemctl stop NetworkManager && systemctl disable NetworkManager
+      when: ansible_os_family == 'RedHat' 
+
+    - selinux:
+        policy: targeted
+        state: permissive
+
+
+    - name: Reiniciando os servidores.
+      shell: sleep 2 && reboot -n 
+      async: 1
+      poll: 0
+      ignore_errors: true
+
+    - name: Aguardando os servidores voltarem.
+      local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
+...
