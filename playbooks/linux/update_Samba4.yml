@@ -108,12 +108,12 @@
      - name: Iniciando o servico do samba4
        shell: /usr/local/samba/sbin/smbd start && /usr/local/samba/sbin/nmbd start && /usr/local/samba/sbin/winbindd start && /usr/local/samba/sbin/smbd restart && /usr/local/samba/sbin/nmbd restart && /usr/local/samba/sbin/winbindd restart
 
-#     - name: Reiniciando o servidor
-#       shell: sleep 2 && reboot -n
-#       async: 1
-#       poll: 0
-#       ignore_errors: true
+     - name: Reiniciando o servidor
+       shell: sleep 2 && reboot -n
+       async: 1
+       poll: 0
+       ignore_errors: true
 
-#     - name: Esperando o servidor voltar
-#       local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
+     - name: Esperando o servidor voltar
+       local_action: wait_for host={{ ansible_ssh_host }} state=started delay=30
 ...
