@@ -15,39 +15,50 @@
     - name: Instalação de pacotes.
       apt:
         pkg:
-        - vim
-        - inxi
-        - htop
-        - fail2ban
-        - git
-        - iwatch
-        - curl
-        - mailutils
-        - libsasl2-modules
-        - postfix
-        - bash-completion
-#        - rclone
-#        - fdupes
-        - rsync
-        - zstd
+        - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
+        - inxi                 # Informacoes do sistema.
+        - htop                 # Exibicao de processos.
+        - iptables             # Firewall para ser usado em conjunto com fail2ban.
+        - fail2ban             # Protecao contra ataques de forcao bruta.
+        - git                  # Controle de versao de arquivos, util para baixar pacotes do repo github.
+        - curl                 # Transferencia de dados usando URLs.
+        - iwatch               # Monitoramento arquivos e diretorios.
+        - msmtp                # Programa simples para envio de emails.
+        - msmtp-mta            # Servidor simples MTA para envio de e-mails.
+        - bsd-mailx            # Cliente de linha de comando para envio de emails manual.
+        - apticron             # Checagem em tempos por atualizacoes no Debian e notifica por email.
+        - logwatch             # Inforcoes do estado do sistema, envio diario por e-mail.
+        - bash-completion      # Opcao mais completa para completar comandos do bash.
+        #- fdupes               # identificar arquivos duplicados.
+        - rsync                # Sincronizacao de arquivos.
+        - zstd                 # Compactador zst.
 
-    - name: Copia arquivos de configuracao fail2ban, iwatch e postfix.
-      shell: cp -p /etc/fail2ban/jail.conf /etc/fail2ban/jail.local && cp -p /etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml.ori && cp /etc/postfix/main.cf /etc/postfix/main.cf.ori
+    - name: Copia local dos arquivos de configuracao iwatch.
+      shell: cp -p /etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml.ori
 
-    - name: Fail2ban - Sincronizacao de arquivos de configuracao modelo 192.168.1.5.
-      shell: rsync -e "ssh -p 839" -ru root@192.168.1.5:/etc/fail2ban/jail.local /etc/fail2ban/jail.local
+    - name: Fail2ban - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/fail2ban/jail.local root@192.168.122.156:/etc/fail2ban/
 
-    - name: Iwatch - Sincronizacao de arquivos de configuracao modelo 192.168.1.5.
-      shell: rsync -e "ssh -p 839" -ru root@192.168.1.5:/etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml
+    - name: Iwatch - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/iwatch/iwatch.xml root@192.168.122.156:/etc/iwatch/
 
-    - name: Postfix - Sincronizacao de arquivos de configuracao modelo 192.168.1.5.
-      shell: rsync -e "ssh -p 839" -ru root@192.168.1.5:/etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd
+    - name: Msmtp - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/root/.msmtprc root@192.168.122.156:/root/
 
-    - name: Postfix - Criacao e protecao do db de hash.
-      shell: postmap /etc/postfix/sasl/sasl_passwd && chown root:root /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db && chmod 0600 /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+    - name: Apticron - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/apticron/apticron.conf root@192.168.122.156:/etc/apticron/
 
-    - name: Fail2ban - Iniciar junto com sistema.
-      shell: systemctl start fail2ban && systemctl enable fail2ban
+    - name: Logwatch - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/logwatch/conf/logwatch.conf root@192.168.122.156:/etc/logwatch/conf/
+
+    - name: Bash Usuario - Ajuste do shell de usuario Eduardo.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/home/eduardo/.bashrc root@192.168.122.156:/home/eduardo/
+
+    - name: Bash Usuario - Ajuste do shell de usuario Root.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/home/root/.bashrc root@192.168.122.156:/root/
+
+    - name: Iniciar servicos e configurar para iniciarem junto com sistema.
+      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch && systemctl restart apticron && systemctl enable apticron && systemctl restart logwatch && systemctl enable logwatch 
 
     - name: Instalacao zabbix-agent.
       shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-5+debian12_all.deb && dpkg -i zabbix-release_6.0-5+debian12_all.deb && apt update && apt install zabbix-agent && systemctl restart zabbix-agent && systemctl enable zabbix-agent
@@ -57,4 +68,22 @@
 
     - name: Instalacao bacula-fd.
       shell:
+
+    - name: Download pacote bacula - FD.
+      get_url:
+              url: https://sourceforge.net/projects/bacula/files/bacula/13.0.3/bacula-13.0.3.tar.gz
+              dest: /root/install/bacula/
+
+    - name: Descompactacao pacote bacula.
+      shell: cd /root/install/bacula/ && tar -xvzf bacula-13.0.3.tar.gz
+
+    - name: Configuracao instalacao bacula.
+      shell: cd /root/install/bacula/bacula-13.0.3/ && ./configure --enable-client-only --enable-build-dird=no --enable-build-stored=no --bindir=/usr/bin --sbindir=/usr/sbin --with-scriptdir=/etc/bacula/scripts --with-working-dir=/var/lib/bacula --with-logdir=/var/log --enable-smartalloc
+
+    - name: Instalacao bacula - FD.
+      shell: cd /root/install/bacula/bacula-13.0.3 && make -j8 && make install && make install-autostart-fd
+
+    - name: Reiniciando servicos - FD.
+      shell: systemctl restart bacula-fd
+
 ...
