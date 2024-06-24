@@ -1,0 +1,82 @@
+---
+
+- hosts: 192.168.122.81
+
+  tasks:
+
+    - name: Atualizacao repositorio Debian.
+      apt: update_cache=yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Atualizacao sistema Debian.
+      apt: upgrade=dist
+      when: ansible_os_family == 'Debian'
+
+    - name: Instalação de pacotes.
+      apt:
+        pkg:
+        - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
+        - inxi                 # Informacoes do sistema.
+        - htop                 # Exibicao de processos.
+        - iptables             # Firewall para ser usado em conjunto com fail2ban.
+        - fail2ban             # Protecao contra ataques de forcao bruta.
+        - git                  # Controle de versao de arquivos, util para baixar pacotes do repo github.
+        - curl                 # Transferencia de dados usando URLs.
+        - iwatch               # Monitoramento arquivos e diretorios.
+        - msmtp                # Programa simples para envio de emails.
+        - msmtp-mta            # Servidor simples MTA para envio de e-mails.
+        #- bsd-mailx            # Cliente de linha de comando para envio de emails manual.
+        - apticron             # Checagem em tempos por atualizacoes no Debian e notifica por email.
+        - logwatch             # Inforcoes do estado do sistema, envio diario por e-mail.
+        - bash-completion      # Opcao mais completa para completar comandos do bash.
+        #- fdupes               # identificar arquivos duplicados.
+        - rsync                # Sincronizacao de arquivos.
+        - zstd                 # Compactador zst.
+
+
+
+
+# Copia de arquivos local p/ servidor remoto
+
+    - name: Copia local dos arquivos de configuracao iwatch.
+      shell: cp -p /etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml.ori
+
+    - name: Copia jail.local do fail2ban.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/etc/fail2ban/jail.local
+        dest: /etc/fail2ban/jail.local
+
+    - name: Copia iwatch.xml do iwatch.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/etc/iwatch/iwatch.xml
+        dest: /etc/iwatch/iwatch.xml
+
+    - name: Copia .msmtprc do msmtp.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/root/.msmtprc
+        dest: /root/.msmtprc
+
+    - name: Copia apticron.conf do apticron.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/etc/apticron/apticron.conf
+        dest: /etc/apticron/apticron.conf
+
+    - name: Copia logwatch.conf do logwatch.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/etc/logwatch/conf/logwatch.conf
+        dest: /etc/logwatch/conf/logwatch.conf
+
+    - name: Copia .bashrc para Eduardo.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/home/eduardo/.bashrc
+        dest: /home/eduardo/.bashrc
+
+    - name: Copia .bashrc para Root.
+      copy:
+        src: /etc/ansible/arquivos/srv_std/root/.bashrc
+        dest: /root/.bashrc
+
+    - name: Iniciar servicos e configurar para iniciarem junto com sistema.
+      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch && systemctl restart apticron && systemctl enable apticron && systemctl restart logwatch && systemctl enable logwatch
+
+...
