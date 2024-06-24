@@ -25,7 +25,7 @@
         - iwatch               # Monitoramento arquivos e diretorios.
         - msmtp                # Programa simples para envio de emails.
         - msmtp-mta            # Servidor simples MTA para envio de e-mails.
-        - bsd-mailx            # Cliente de linha de comando para envio de emails manual.
+        #- bsd-mailx            # Cliente de linha de comando para envio de emails manual.
         - apticron             # Checagem em tempos por atualizacoes no Debian e notifica por email.
         - logwatch             # Inforcoes do estado do sistema, envio diario por e-mail.
         - bash-completion      # Opcao mais completa para completar comandos do bash.
@@ -64,10 +64,7 @@
       shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-5+debian12_all.deb && dpkg -i zabbix-release_6.0-5+debian12_all.deb && apt update && apt install zabbix-agent && systemctl restart zabbix-agent && systemctl enable zabbix-agent
 
     - name: Instalacao glpi-agent.
-      shell: rsync -e "ssh -p 839" -ru root@192.168.1.5:/install/glpi-agent* /root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ruv root@192.168.1.5:/etc/glpi-agent/agent.cfg /etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
-
-    - name: Instalacao bacula-fd.
-      shell:
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/root/install/glpi-agent* /root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ruv root@192.168.1.5:/etc/glpi-agent/agent.cfg /etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
 
     - name: Download pacote bacula - FD.
       get_url:
