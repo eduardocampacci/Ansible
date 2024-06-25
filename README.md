@@ -1,7 +1,17 @@
 # ansible
 Alguns playbooks para linux e windows:
 
-Linux: backups de configurações, padronização do Debian, atualização de SO baseados em Debian/Red Hat, instação do zsh/ohmyzsh, atualização do bacula e samba4.
+Linux: 
+bkp_arquivos.yml
+bkp_configs.yml
+debian12_hewitt.yml
+debian12_modelo.yml
+shutdown_srv.yml
+update_bacula.yml
+update_samba4.yml
+update_so.yml
+zsh_debian.yml
+
 Windows: Ainda precisam ser testados. 
 
 
