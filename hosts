@@ -24,6 +24,6 @@
 
 [windows]
 #192.168.1.9		#vmeduardo
- 
-[teste]
-192.168.122.81:839	# debian-modelo
+
+[vms]
+192.168.122.20:839	# debian12_modelo
