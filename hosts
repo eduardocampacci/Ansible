@@ -27,3 +27,4 @@
 
 [vms]
 192.168.122.20:839	# debian12_modelo
+192.168.122.21:839	# debian_xfce_modelo
