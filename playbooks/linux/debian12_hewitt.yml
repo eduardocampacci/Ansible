@@ -32,53 +32,63 @@
         #- fdupes               # identificar arquivos duplicados.
         - rsync                # Sincronizacao de arquivos.
         - zstd                 # Compactador zst.
+        - openssh-server       # Servidor SSH.
 
-    - name: Copia local dos arquivos de configuracao iwatch.
+    - name: SSH - Ajustes de seguranca.
+      shell: cp /etc/ssh/sshd_config /etc/ssh/sshd_config.ori && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/ssh/sshd_config root@192.168.122.81:/etc/ssh/
+
+    - name: SU - Sincronizacao de arquivos modelo de configuracao.
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/pam.d/su root@192.168.122.81:/etc/pam.d/su
+
+    - name: Grupo Wheel - Criacao do grupo e inserido usuario.
+      shell: groupadd wheel && usermod -aG wheel eduardo
+
+    - name: Iwatch - Copia local dos arquivos de configuracao.
       shell: cp -p /etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml.ori
 
     - name: Fail2ban - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/fail2ban/jail.local root@192.168.122.81:/etc/fail2ban/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/fail2ban/jail.local root@192.168.122.81:/etc/fail2ban/
 
     - name: Iwatch - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/iwatch/iwatch.xml root@192.168.122.81:/etc/iwatch/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/iwatch/iwatch.xml root@192.168.122.81:/etc/iwatch/
 
     - name: Msmtp - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/root/.msmtprc root@192.168.122.81:/root/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/.msmtprc root@192.168.122.81:/root/
 
     - name: Apticron - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/apticron/apticron.conf root@192.168.122.81:/etc/apticron/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/apticron/apticron.conf root@192.168.122.81:/etc/apticron/
 
     - name: Logwatch - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/logwatch/conf/logwatch.conf root@192.168.122.81:/etc/logwatch/conf/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/logwatch/conf/logwatch.conf root@192.168.122.81:/etc/logwatch/conf/
 
     - name: Bash Usuario - Ajuste do shell de usuario Eduardo.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/home/eduardo/.bashrc root@192.168.122.81:/home/eduardo/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/home/eduardo/.bashrc root@192.168.122.81:/home/eduardo/
 
     - name: Bash Usuario - Ajuste do shell de usuario Root.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/home/root/.bashrc root@192.168.122.81:/root/
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/.bashrc root@192.168.122.81:/root/
 
     - name: Iniciar servicos e configurar para iniciarem junto com sistema.
-      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch && systemctl restart apticron && systemctl enable apticron && systemctl restart logwatch && systemctl enable logwatch 
+      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch && systemctl restart apticron && systemctl enable apticron && systemctl restart logwatch && systemctl enable logwatch
 
     - name: Instalacao zabbix-agent.
-      shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-5+debian12_all.deb && dpkg -i zabbix-release_6.0-5+debian12_all.deb && apt update && apt install zabbix-agent && systemctl restart zabbix-agent && systemctl enable zabbix-agent
+      shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_7.0-2+debian12_all.deb && dpkg -i zabbix-release_7.0-2+debian12_all.deb && apt update && apt install zabbix-agent2 zabbix-agent2-plugin-* && systemctl restart zabbix-agent2 && systemctl enable zabbix-agent2
 
     - name: Instalacao glpi-agent.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/root/install/glpi-agent* root@192.168.122.81:/root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv_std/etc/glpi-agent/agent.cfg root@192.168.122.81:/etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/install/glpi-agent* root@192.168.122.81:/root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/glpi-agent/agent.cfg root@192.168.122.81:/etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
 
     - name: Download pacote bacula - FD.
       get_url:
-              url: https://sourceforge.net/projects/bacula/files/bacula/13.0.3/bacula-13.0.3.tar.gz
+              url: https://sourceforge.net/projects/bacula/files/bacula/15.0.2/bacula-15.0.2.tar.gz
               dest: /root/install/bacula/
 
     - name: Descompactacao pacote bacula.
-      shell: cd /root/install/bacula/ && tar -xvzf bacula-13.0.3.tar.gz
+      shell: cd /root/install/bacula/ && tar -xvzf bacula-15.0.2.tar.gz
 
     - name: Configuracao instalacao bacula.
-      shell: cd /root/install/bacula/bacula-13.0.3/ && ./configure --enable-client-only --enable-build-dird=no --enable-build-stored=no --bindir=/usr/bin --sbindir=/usr/sbin --with-scriptdir=/etc/bacula/scripts --with-working-dir=/var/lib/bacula --with-logdir=/var/log --enable-smartalloc
+      shell: cd /root/install/bacula/bacula-15.0.2/ && ./configure --enable-client-only --enable-build-dird=no --enable-build-stored=no --bindir=/usr/bin --sbindir=/usr/sbin --with-scriptdir=/etc/bacula/scripts --with-working-dir=/var/lib/bacula --with-logdir=/var/log --enable-smartalloc
 
     - name: Instalacao bacula - FD.
-      shell: cd /root/install/bacula/bacula-13.0.3 && make -j8 && make install && make install-autostart-fd
+      shell: cd /root/install/bacula/bacula-15.0.2 && make -j8 && make install && make install-autostart-fd
 
     - name: Reiniciando servicos - FD.
       shell: systemctl restart bacula-fd
