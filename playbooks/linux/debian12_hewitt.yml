@@ -1,6 +1,6 @@
 ---
 
-- hosts: 192.168.122.81
+- hosts: vms
 
   tasks:
 
@@ -12,7 +12,7 @@
       apt: upgrade=dist
       when: ansible_os_family == 'Debian'
 
-    - name: Instalação de pacotes.
+    - name: Instalação de pacotes pré compilados.
       apt:
         pkg:
         - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
@@ -32,49 +32,88 @@
         #- fdupes               # identificar arquivos duplicados.
         - rsync                # Sincronizacao de arquivos.
         - zstd                 # Compactador zst.
-        - openssh-server       # Servidor SSH.
+        #- openssh-server       # Servidor SSH.
 
-    - name: SSH - Ajustes de seguranca.
-      shell: cp /etc/ssh/sshd_config /etc/ssh/sshd_config.ori && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/ssh/sshd_config root@192.168.122.81:/etc/ssh/
 
-    - name: SU - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/pam.d/su root@192.168.122.81:/etc/pam.d/su
+    - name: Garantir existencia do grupo "wheel".
+      ansible.builtin.group:
+        name: wheel
+        state: present
 
-    - name: Grupo Wheel - Criacao do grupo e inserido usuario.
-      shell: groupadd wheel && usermod -aG wheel eduardo
+    - name: Incluir user eduardo no grupo wheel.
+      shell: usermod -aG wheel eduardo
 
-    - name: Iwatch - Copia local dos arquivos de configuracao.
-      shell: cp -p /etc/iwatch/iwatch.xml /etc/iwatch/iwatch.xml.ori
+    - name: SSH - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/ssh/sshd_config
+        dest: /etc/ssh/sshd_config
+        backup: yes
 
-    - name: Fail2ban - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/fail2ban/jail.local root@192.168.122.81:/etc/fail2ban/
+    - name: SU - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/pam.d/su
+        dest: /etc/pam.d/su
+        backup: yes
 
-    - name: Iwatch - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/iwatch/iwatch.xml root@192.168.122.81:/etc/iwatch/
+    - name: Fail2ban - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/fail2ban/jail.local
+        dest: /etc/fail2ban/jail.local
+        backup: yes
 
-    - name: Msmtp - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/.msmtprc root@192.168.122.81:/root/
+    - name: Iwatch - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/iwatch/iwatch.xml
+        dest: /etc/iwatch/iwatch.xml
+        backup: yes
 
-    - name: Apticron - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/apticron/apticron.conf root@192.168.122.81:/etc/apticron/
+    - name: Msmtp - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/.msmtprc
+        dest: /root/.msmtprc
+        backup: yes
 
-    - name: Logwatch - Sincronizacao de arquivos modelo de configuracao.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/logwatch/conf/logwatch.conf root@192.168.122.81:/etc/logwatch/conf/
+    - name: Apticron - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/apticron/apticron.conf
+        dest: /etc/apticron/apticron.conf
+        backup: yes
 
-    - name: Bash Usuario - Ajuste do shell de usuario Eduardo.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/home/eduardo/.bashrc root@192.168.122.81:/home/eduardo/
+    - name: Logwatch - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/logwatch/conf/logwatch.conf
+        dest: /etc/logwatch/conf/logwatch.conf
+        backup: yes
 
-    - name: Bash Usuario - Ajuste do shell de usuario Root.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/.bashrc root@192.168.122.81:/root/
+    - name: Bash Usuario Eduardo - Ajuste do shell de usuario.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/home/eduardo/.bashrc
+        dest: /home/eduardo/.bashrc
+        backup: yes
 
-    - name: Iniciar servicos e configurar para iniciarem junto com sistema.
-      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch && systemctl restart apticron && systemctl enable apticron && systemctl restart logwatch && systemctl enable logwatch
+    - name: Bash Usuario Root - Ajuste do shell de usuario Root.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/.bashrc
+        dest: /root/.bashrc
+        backup: yes
+
+    - name: Iniciar servicos e habilitar iniciarem junto com sistema.
+      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch
+
+    - name: Zabbix - Download de pacote.
+      ansible.builtin.get_url:
+        url: https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_7.0-2+debian12_all.deb
+        dest: /root/install/
+      ansible.builtin.get_url:
+        url: https://sourceforge.net/projects/bacula/files/bacula/15.0.2/bacula-15.0.2.tar.gz
+        dest: /root/install/
+
 
     - name: Instalacao zabbix-agent.
       shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_7.0-2+debian12_all.deb && dpkg -i zabbix-release_7.0-2+debian12_all.deb && apt update && apt install zabbix-agent2 zabbix-agent2-plugin-* && systemctl restart zabbix-agent2 && systemctl enable zabbix-agent2
 
     - name: Instalacao glpi-agent.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/install/glpi-agent* root@192.168.122.81:/root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/glpi-agent/agent.cfg root@192.168.122.81:/etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
+      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/install/glpi-agent* root@192.168.1.163:/root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/glpi-agent/agent.cfg root@192.168.1.163:/etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
 
     - name: Download pacote bacula - FD.
       get_url:
