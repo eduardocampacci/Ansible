@@ -1,5 +1,5 @@
 [slackware]
-192.168.1.2:839 # Controlador de dominio PDC
+192.168.1.2:839		# Controlador de dominio PDC
 
 [debian]
 192.168.1.3:839		# Fileserver_sec

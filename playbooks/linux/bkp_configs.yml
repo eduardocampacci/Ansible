@@ -13,10 +13,17 @@
           target: /root/dump_banco/mariadb/mariadb.sql
 
 # Dump do banco de dados PostgreSQL 
-#- hosts: 192.168.1.27
-#  user: root
+- hosts: 192.168.1.27
+  user: root
 
-#  tasks:
+  tasks:
+    - name: Dump banco de dados PostgreSQL.
+      community.postgresql.postgresql_db:
+        name: bacula
+        state: dump
+        target: /root/dump_banco/postgresql/postgresql.sql
+
+
 #    - name: Dump do banco de dados PostgreSQL.
 #      postgresql_db:
 #          login_user: postgres
