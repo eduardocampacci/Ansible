@@ -117,7 +117,7 @@ MaxStartups 3:80:6
 
 # Variaveis para permitir ou impedir acessos ssh.
 # As Allow e Deny nao funcionam ao mesmo tempo. Deve ser ativado um ou outro.
-AllowUsers eduardo user1
+#AllowUsers eduardo user1
 #DenyUsers lucas
 
 # no default banner path

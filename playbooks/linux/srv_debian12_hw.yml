@@ -1,0 +1,162 @@
+---
+
+- hosts: vms
+
+  tasks:
+
+    - name: APT - Atualizacao repositorio Debian.
+      apt: update_cache=yes
+      when: ansible_os_family == 'Debian'
+
+    - name: APT - Atualizacao sistema Debian.
+      apt: upgrade=dist
+      when: ansible_os_family == 'Debian'
+
+    - name: APT - Instalação de pacotes pré compilados.
+      apt:
+        pkg:
+        - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
+        - inxi                 # Informacoes do sistema.
+        - htop                 # Exibicao de processos.
+        - iptables             # Firewall para ser usado em conjunto com fail2ban.
+        - fail2ban             # Protecao contra ataques de forcao bruta.
+        - git                  # Controle de versao de arquivos, util para baixar pacotes do repo github.
+        - curl                 # Transferencia de dados usando URLs.
+        - iwatch               # Monitoramento arquivos e diretorios.
+        - msmtp                # Programa simples para envio de emails.
+        - msmtp-mta            # Servidor simples MTA para envio de e-mails.
+        #- bsd-mailx            # Cliente de linha de comando para envio de emails manual.
+        - apticron             # Checagem em tempos por atualizacoes no Debian e notifica por email.
+        - logwatch             # Inforcoes do estado do sistema, envio diario por e-mail.
+        - bash-completion      # Opcao mais completa para completar comandos do bash.
+        #- fdupes               # identificar arquivos duplicados.
+        - rsync                # Sincronizacao de arquivos.
+        - zstd                 # Compactador zst.
+        #- openssh-server       # Servidor SSH.
+        - apt-transport-https # Transporte do APT para descarregar via Protocolo Seguro HTTP (HTTPS).
+        - build-essential     # Dependencia para compilacao do bacula-fd.
+        - zlib1g-dev          # Dependencia para compilacao do bacula-fd.
+        - liblzo2-dev         # Dependencia para compilacao do bacula-fd.
+        - libacl1-dev         # Dependencia para compilacao do bacula-fd.
+        - libssl-dev          # Dependencia para compilacao do bacula-fd.
+
+    - name: User Local - Garantir existencia do grupo "wheel".
+      ansible.builtin.group:
+        name: wheel
+        state: present
+
+    - name: Users Local - Incluir user eduardo no grupo wheel.
+      shell: usermod -aG wheel eduardo
+
+    - name: SSH - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/ssh/sshd_config
+        dest: /etc/ssh/sshd_config
+        backup: yes
+
+    - name: SU - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/pam.d/su
+        dest: /etc/pam.d/su
+        backup: yes
+
+    - name: Fail2ban - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/fail2ban/jail.local
+        dest: /etc/fail2ban/jail.local
+        backup: yes
+
+    - name: Iwatch - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/iwatch/iwatch.xml
+        dest: /etc/iwatch/iwatch.xml
+        backup: yes
+
+    - name: Msmtp - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/.msmtprc
+        dest: /root/.msmtprc
+        backup: yes
+
+    - name: Apticron - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/apticron/apticron.conf
+        dest: /etc/apticron/apticron.conf
+        backup: yes
+
+    - name: Logwatch - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/logwatch/conf/logwatch.conf
+        dest: /etc/logwatch/conf/logwatch.conf
+        backup: yes
+
+    - name: User Local - Ajuste do shell do usuario eduardo.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/home/eduardo/.bashrc
+        dest: /home/eduardo/.bashrc
+        backup: yes
+
+    - name: User Local - Ajuste do shell de usuario Root.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/.bashrc
+        dest: /root/.bashrc
+        backup: yes
+
+    - name: Fail2ban e Iwatch - Reiniciando e habilitando servicos.
+      shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch
+
+    - name: Bacula-fd, Gglpi-Agent e Zabbix-Agent - Copia de pacotes.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/install
+        dest: /root/
+        #backup: yes
+
+    - name: Zabbix-Agent - Instalacao do zabbix-agent.
+      shell: dpkg -i /root/install/zabbix-release* && apt update && apt install zabbix-agent2 zabbix-agent2-plugin-*
+
+    - name: Zabbix-Agent - Copia config Zabbix.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/zabbix/zabbix_agent2.conf
+        dest: /etc/zabbix/zabbix_agent2.conf
+        backup: yes
+
+    - name: Zabbix-Agent - Reiniciando zabbix-agent.
+      shell: systemctl restart zabbix-agent2 && systemctl enable zabbix-agent2
+
+    - name: Glpi-Agent - Instalacao glpi-agent.
+      shell: apt install -y /root/install/glpi-agent*
+
+    - name: Glpi-Agent - Copia config GLPI-Agent.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/glpi-agent/agent.cfg
+        dest: /etc/glpi-agent/agent.cfg
+        backup: yes
+
+    - name: Glpi-Agent - Reiniciando glpi-agent.
+      shell: systemctl restart glpi-agent && systemctl enable glpi-agent
+
+#    - name: Bacula - Importacao GPK key.
+#      shell: cd /tmp && wget https://www.bacula.org/downloads/Bacula-4096-Distribution-Verification-key.asc && apt-key add Bacula-4096-Distribution-Verification-key.asc && rm Bacula-4096-Distribution-Verification-key.asc
+
+#    - name: Bacula - Copia arquivo de repositorio.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/srv/etc/apt/sources.list.d/bacula-community.list
+#        dest: /etc/apt/sources.list.d/
+#        backup: yes
+
+    - name: Bacula-fd - Descompactando pacote.
+      shell: cd /root/install/ && tar -xvzf bacula-*
+
+    - name: Bacula-fd - Deletar pacote tar.gz.
+      shell: rm /root/install/*.tar.gz
+
+    - name: Bacula-fd - Configuracao do bacula-fd.
+      shell: cd /root/install/bacula-* && ./configure --enable-client-only --enable-build-dird=no --enable-build-stored=no --bindir=/usr/bin --sbindir=/usr/sbin --with-scriptdir=/etc/bacula/scripts --with-working-dir=/var/lib/bacula --with-logdir=/var/log --enable-smartalloc
+
+    - name: Bacula-fd - Instalacao do bacula-fd.
+      shell: cd /root/install/bacula-* && make -j8 && make install && make install-autostart-fd
+
+    - name: Bacula-fd - Reiniciando servicos bacula-fd.
+      shell: systemctl restart bacula-fd
+
+...

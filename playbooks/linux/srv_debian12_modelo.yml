@@ -4,15 +4,15 @@
 
   tasks:
 
-    - name: Atualizacao repositorio Debian.
+    - name: APT - Atualizacao repositorio Debian.
       apt: update_cache=yes
       when: ansible_os_family == 'Debian'
 
-    - name: Atualizacao sistema Debian.
+    - name: APT - Atualizacao sistema Debian.
       apt: upgrade=dist
       when: ansible_os_family == 'Debian'
 
-    - name: Instalação de pacotes pré compilados.
+    - name: APT - Instalação de pacotes pré compilados.
       apt:
         pkg:
         - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
@@ -33,14 +33,19 @@
         - rsync                # Sincronizacao de arquivos.
         - zstd                 # Compactador zst.
         #- openssh-server       # Servidor SSH.
+        - apt-transport-https # Transporte do APT para descarregar via Protocolo Seguro HTTP (HTTPS).
+        - build-essential     # Dependencia para compilacao do bacula-fd.
+        - zlib1g-dev          # Dependencia para compilacao do bacula-fd.
+        - liblzo2-dev         # Dependencia para compilacao do bacula-fd.
+        - libacl1-dev         # Dependencia para compilacao do bacula-fd.
+        - libssl-dev          # Dependencia para compilacao do bacula-fd.
 
-
-    - name: Garantir existencia do grupo "wheel".
+    - name: User Local - Garantir existencia do grupo "wheel".
       ansible.builtin.group:
         name: wheel
         state: present
 
-    - name: Incluir user eduardo no grupo wheel.
+    - name: Users Local - Incluir user eduardo no grupo wheel.
       shell: usermod -aG wheel eduardo
 
     - name: SSH - Copia de arquivo e backup.
@@ -85,51 +90,20 @@
         dest: /etc/logwatch/conf/logwatch.conf
         backup: yes
 
-    - name: Bash Usuario Eduardo - Ajuste do shell de usuario.
+    - name: User Local - Ajuste do shell do usuario eduardo.
       ansible.builtin.copy:
         src: /etc/ansible/arquivos/srv/home/eduardo/.bashrc
         dest: /home/eduardo/.bashrc
         backup: yes
 
-    - name: Bash Usuario Root - Ajuste do shell de usuario Root.
+    - name: User Local - Ajuste do shell de usuario Root.
       ansible.builtin.copy:
         src: /etc/ansible/arquivos/srv/root/.bashrc
         dest: /root/.bashrc
         backup: yes
 
-    - name: Iniciar servicos e habilitar iniciarem junto com sistema.
+    - name: Fail2ban e Iwatch - Reiniciando e habilitando servicos.
       shell: systemctl restart fail2ban && systemctl enable fail2ban && systemctl restart iwatch && systemctl enable iwatch
 
-    - name: Zabbix - Download de pacote.
-      ansible.builtin.get_url:
-        url: https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_7.0-2+debian12_all.deb
-        dest: /root/install/
-      ansible.builtin.get_url:
-        url: https://sourceforge.net/projects/bacula/files/bacula/15.0.2/bacula-15.0.2.tar.gz
-        dest: /root/install/
-
-
-    - name: Instalacao zabbix-agent.
-      shell: mkdir /root/install && cd /root/install && wget https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_7.0-2+debian12_all.deb && dpkg -i zabbix-release_7.0-2+debian12_all.deb && apt update && apt install zabbix-agent2 zabbix-agent2-plugin-* && systemctl restart zabbix-agent2 && systemctl enable zabbix-agent2
-
-    - name: Instalacao glpi-agent.
-      shell: rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/root/install/glpi-agent* root@192.168.1.163:/root/install/ && apt install -y /root/install/glpi-agent* && rsync -e "ssh -p 839" -ru /etc/ansible/arquivos/srv/etc/glpi-agent/agent.cfg root@192.168.1.163:/etc/glpi-agent/agent.cfg && systemctl start glpi-agent && systemctl enable glpi-agent
-
-    - name: Download pacote bacula - FD.
-      get_url:
-              url: https://sourceforge.net/projects/bacula/files/bacula/15.0.2/bacula-15.0.2.tar.gz
-              dest: /root/install/bacula/
-
-    - name: Descompactacao pacote bacula.
-      shell: cd /root/install/bacula/ && tar -xvzf bacula-15.0.2.tar.gz
-
-    - name: Configuracao instalacao bacula.
-      shell: cd /root/install/bacula/bacula-15.0.2/ && ./configure --enable-client-only --enable-build-dird=no --enable-build-stored=no --bindir=/usr/bin --sbindir=/usr/sbin --with-scriptdir=/etc/bacula/scripts --with-working-dir=/var/lib/bacula --with-logdir=/var/log --enable-smartalloc
-
-    - name: Instalacao bacula - FD.
-      shell: cd /root/install/bacula/bacula-15.0.2 && make -j8 && make install && make install-autostart-fd
-
-    - name: Reiniciando servicos - FD.
-      shell: systemctl restart bacula-fd
 
 ...

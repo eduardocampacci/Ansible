@@ -1,0 +1,154 @@
+---
+
+- hosts: cli
+
+  tasks:
+
+    - name: APT - Atualizacao repositorio Debian.
+      apt: update_cache=yes
+      when: ansible_os_family == 'Debian'
+
+    - name: APT - Atualizacao sistema Debian.
+      apt: upgrade=dist
+      when: ansible_os_family == 'Debian'
+
+    - name: APT - Instalação de pacotes pré compilados.
+      apt:
+        pkg:
+        #- task-xfce-desktop    # Ambiente grafico XFCE. 
+        - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
+        - inxi                 # Informacoes do sistema.
+        - htop                 # Exibicao de processos.
+        - git                  # Controle de versao de arquivos, util para baixar pacotes do repo github.
+        - curl                 # Transferencia de dados usando URLs.
+        - bash-completion      # Opcao mais completa para completar comandos do bash.
+        #- fdupes               # identificar arquivos duplicados.
+        - rsync                # Sincronizacao de arquivos.
+        - zstd                 # Compactador zst.
+        - apt-transport-https  # Transporte do APT para descarregar via Protocolo Seguro HTTP (HTTPS).
+        - rclone               # Sincronizacao de arquivos em cloud.
+        - qbittorrent          # Downloads de arquivos torrents.
+        - remmina              # Programa de acesso remoto local.
+        #- mate-calc            # Calculadora do mate.
+        - vokoscreen-ng        # Gravador simples da area de trabalho.
+        - vlc                  # Player de video e audio.
+        - nmap                 # Scann de redes.
+        - tcpdump              # Analise de pacotes em trafego de redes. 
+        - bridge-utils
+        - openfortivpn
+        - kdenlive             # Editor de videos.
+        - obs-studio           # Gravador completo da area de trabalho.
+        - gimp
+        - papirus-icon-theme
+        - nload                # Analise de banda.
+        #- libreoffice          # Suite de escritorio.
+        #- libreoffice-gnome    # Para visualizar arquivos libreoffice no gerenciador de janela.
+        - yt-dlp               # Downloads de videos do youtube. 
+        - youtubedl-gui        # Gui para yt-dlp.
+        - filezilla            # Gestao de arquivos remotos.
+        - terminator           # Terminal flexivel para trabalhar.
+        #- catfish              # Para configurar a opção de busca no thunar.
+        - cpu-x                # Para obter informacoes do hardware.
+        - qemu-system          # Para KVM.
+        - libvirt-daemon-system # Para KVM.
+        - virt-manager         # Gui para KVM.
+        - flatpak              # Para instalar pacotes empacotados em flatpacks.
+        - openjdk-24-jre       # Para executar programas que necessitam do java.
+        - gparted              # Gui p/ particionador de discos.
+        - gsmartcontrol        # Gui para analise de discos.
+        #- nvidia-detect        # Para detectar placas nvidia.
+        #- linux-headers-amd64
+        #- nvidia-legacy-340xx-driver 
+        #- firmware-misc-nonfree
+        #- lightdm-gtk-greeter-settings # Para personalizar o lightdm.
+        - memtest86+           # Para testes de memoria ram.
+        - btrfs-progs
+        - zsh
+        - zsh-theme-powerlevel9k
+        - zsh-syntax-highlighting
+
+### Esta com problemas para instalacao do oh-my-zsh
+    - name: ZSH - Instalação do Oh-My-ZSH
+      shell: sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+    - name: ZSH - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/home/eduardo/.zshrc
+        dest: /home/eduardo/
+
+    - name: DPKG - Copia de pacotes.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/home/Downloads/
+        dest: /home/eduardo/
+        backup: yes
+
+    - name: OPT - Copia de programas.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/opt/
+        dest: /etc/opt/
+
+    - name: USR/SHARE - Copia de arquivos para icones de programas.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/usr/share/applications/
+        dest: /usr/share/applications/
+
+    - name: Config - Copia das configuracoes dos programas.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/home/eduardo/.config/
+        dest: /home/eduardo/.config/
+
+    - name: SSH - Copia das chaves ssh do cliente.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/home/eduardo/.ssh/
+        dest: /home/eduardo/.ssh/
+
+    - name: Flatpak - Copia das configuracoes dos programas em flatpak.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/home/eduardo/.var/app/
+        dest: /home/eduardo/.var/app/
+
+    - name: KVM - Ajuste local.
+      shell: adduser eduardo libvirt
+
+#    - name: Nvidia - Instalacao de bibliotecas 32 bits e 64 bits.
+#      shell: dpkg --add-architecture i386 -y && apt update && apt install -y nvidia-driver-libs:i386
+
+    - name: Flatpack - Adicionar repositorio flatpack no sistema.
+      shell: flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+    - name: Flatpack - Instalacao de pacotes.
+      community.general.flatpak:
+        name:
+          - com.spotify.Client
+          - com.stremio.Stremio
+          - net.ankiweb.Anki
+          - com.discordapp.Discord
+          - com.anydesk.Anydesk
+
+    - name: User Local - Garantir existencia do grupo "wheel".
+      ansible.builtin.group:
+        name: wheel
+        state: present
+
+    - name: Users Local - Incluir user eduardo no grupo wheel.
+      shell: usermod -aG wheel eduardo
+
+    - name: SU - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/etc/pam.d/su
+        dest: /etc/pam.d/su
+        backup: yes
+
+    - name: User Local - Ajuste do shell do usuario eduardo.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/home/eduardo/.bashrc
+        dest: /home/eduardo/.bashrc
+        backup: yes
+
+    - name: User Local - Ajuste do shell de usuario Root.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/root/.bashrc
+        dest: /root/.bashrc
+        backup: yes
+
+...

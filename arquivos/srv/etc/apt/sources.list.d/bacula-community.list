@@ -1,0 +1,4 @@
+# Bacula Community
+#deb https://www.bacula.org/packages/66b491e036fce/debs/15.0.2 bookworm main
+# Bacula Community 
+deb http://www.bacula.org/packages/${bacula_key}/debs/${bacula_version}/${linux_name}/amd64/ ${linux_name} main
