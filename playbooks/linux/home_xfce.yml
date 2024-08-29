@@ -15,9 +15,11 @@
     - name: APT - Instalação de pacotes pré compilados.
       apt:
         pkg:
+        #- task-gnome-desktop  # Ambiente grafico Gnome.
         #- task-xfce-desktop    # Ambiente grafico XFCE. 
         - vim                  # Editor de texto completo, melhor que o padrao vim-tiny.
         - inxi                 # Informacoes do sistema.
+        - neofetch             # Informacoes do sistema linux, similar ao inxi.
         - htop                 # Exibicao de processos.
         - git                  # Controle de versao de arquivos, util para baixar pacotes do repo github.
         - curl                 # Transferencia de dados usando URLs.
@@ -39,10 +41,10 @@
         - kdenlive             # Editor de videos.
         - obs-studio           # Gravador completo da area de trabalho.
         - gimp
-        - papirus-icon-theme
+        #- papirus-icon-theme
         - nload                # Analise de banda.
-        #- libreoffice          # Suite de escritorio.
-        #- libreoffice-gnome    # Para visualizar arquivos libreoffice no gerenciador de janela.
+        - libreoffice          # Suite de escritorio.
+        - libreoffice-gnome    # Para visualizar arquivos libreoffice no gerenciador de janela.
         - yt-dlp               # Downloads de videos do youtube. 
         - youtubedl-gui        # Gui para yt-dlp.
         - filezilla            # Gestao de arquivos remotos.
@@ -53,10 +55,10 @@
         - libvirt-daemon-system # Para KVM.
         - virt-manager         # Gui para KVM.
         - flatpak              # Para instalar pacotes empacotados em flatpacks.
-        - openjdk-24-jre       # Para executar programas que necessitam do java.
+        #- openjdk-17-jre       # Para executar programas que necessitam do java.
         - gparted              # Gui p/ particionador de discos.
-        - gsmartcontrol        # Gui para analise de discos.
-        #- nvidia-detect        # Para detectar placas nvidia.
+        #- gsmartcontrol        # Gui para analise de discos.
+        - nvidia-detect        # Para detectar placas nvidia.
         #- linux-headers-amd64
         #- nvidia-legacy-340xx-driver 
         #- firmware-misc-nonfree
@@ -66,46 +68,76 @@
         - zsh
         - zsh-theme-powerlevel9k
         - zsh-syntax-highlighting
+        - qdiskinfo
+        #- fuse                # Dependencia para appimage, do bitwarden.
+
+    - name: GRUB - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/home/etc/default/grub
+        dest: /etc/default/grub
+
+    - name: GRUB - Recriar o grub com a opcao default.
+      shell: update-grub2
+
+#    - name: Lightdm - Copia de arquivo e backup.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/etc/lightdm/lightdm.conf
+#        dest: /etc/lightdm/lightdm.conf
+#        backup: yes
+
+#    - name: Lightdm gretter - Copia de arquivo e backup.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/etc/lightdm/lightdm-gtk-greeter.conf
+#        dest: /etc/lightdm/lightdm-gtk-greeter.conf
+#        backup: yes
+
+#    - name: Lightdm gretter - Copia de wallpaper.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/usr/share/images/desktop-base/wallpaperflare.com_wallpaper1.jpg
+#        dest: /usr/share/images/desktop-base/wallpaperflare.com_wallpaper1.jpg
+
 
 ### Esta com problemas para instalacao do oh-my-zsh
-    - name: ZSH - Instalação do Oh-My-ZSH
-      shell: sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#    - name: ZSH - Instalação do Oh-My-ZSH
+#      shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -y
+
+#    - name: DPKG - Copia de pacotes .deb.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/pkg/
+#        dest: /root/install/
+
+#    - name: DPKG - Instacao de pacotes .deb.
+#      shell: apt install -y /root/install/*.deb
 
     - name: ZSH - Copia de arquivo e backup.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/eduardo/.zshrc
-        dest: /home/eduardo/
+        src: /etc/ansible/arquivos/home/.zshrc
+        dest: /home/eduardo/.zshrc
 
-    - name: DPKG - Copia de pacotes.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/Downloads/
-        dest: /home/eduardo/
-        backup: yes
+#    - name: OPT - Copia de programas.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/opt/
+#        dest: /opt/
 
-    - name: OPT - Copia de programas.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/opt/
-        dest: /etc/opt/
-
-    - name: USR/SHARE - Copia de arquivos para icones de programas.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/usr/share/applications/
-        dest: /usr/share/applications/
+#    - name: USR/SHARE - Copia de arquivos para icones de programas.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/usr/share/applications/
+#        dest: /usr/share/applications/
 
     - name: Config - Copia das configuracoes dos programas.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/eduardo/.config/
+        src: /etc/ansible/arquivos/home/.config/
         dest: /home/eduardo/.config/
 
-    - name: SSH - Copia das chaves ssh do cliente.
+    - name: SSH - Copia das chaves ssh do cliente HW.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/eduardo/.ssh/
+        src: /etc/ansible/arquivos/home/.ssh/
         dest: /home/eduardo/.ssh/
 
-    - name: Flatpak - Copia das configuracoes dos programas em flatpak.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/eduardo/.var/app/
-        dest: /home/eduardo/.var/app/
+#    - name: Flatpak - Copia das configuracoes dos programas em flatpak.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/home/.var/app/
+#        dest: /home/eduardo/.var/app/
 
     - name: KVM - Ajuste local.
       shell: adduser eduardo libvirt
@@ -125,29 +157,15 @@
           - com.discordapp.Discord
           - com.anydesk.Anydesk
 
-    - name: User Local - Garantir existencia do grupo "wheel".
-      ansible.builtin.group:
-        name: wheel
-        state: present
-
-    - name: Users Local - Incluir user eduardo no grupo wheel.
-      shell: usermod -aG wheel eduardo
-
-    - name: SU - Copia de arquivo e backup.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/srv/etc/pam.d/su
-        dest: /etc/pam.d/su
-        backup: yes
-
     - name: User Local - Ajuste do shell do usuario eduardo.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/srv/home/eduardo/.bashrc
+        src: /etc/ansible/arquivos/home/.bashrc
         dest: /home/eduardo/.bashrc
         backup: yes
 
     - name: User Local - Ajuste do shell de usuario Root.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/srv/root/.bashrc
+        src: /etc/ansible/arquivos/home/.bashrc
         dest: /root/.bashrc
         backup: yes
 
