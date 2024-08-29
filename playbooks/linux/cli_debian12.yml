@@ -38,7 +38,7 @@
         - openfortivpn
         #- kdenlive             # Editor de videos.
         #- obs-studio           # Gravador completo da area de trabalho.
-        - gimp
+        #- gimp
         #- papirus-icon-theme
         - nload                # Analise de banda.
         #- libreoffice          # Suite de escritorio.
@@ -67,11 +67,11 @@
         - zsh-theme-powerlevel9k
         - zsh-syntax-highlighting
         - qdiskinfo
-        - fuse                # Dependencia para appimage, do bitwarden.
+        #- fuse                # Dependencia para appimage, do bitwarden.
 
     - name: GRUB - Copia de arquivo e backup.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/etc/default/grub
+        src: /etc/ansible/arquivos/cli/grub
         dest: /etc/default/grub
 
     - name: GRUB - Recriar o grub com a opcao default.
@@ -83,39 +83,33 @@
 
     - name: ZSH - Copia de arquivo e backup.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/.zshrc
+        src: /etc/ansible/arquivos/cli/.zshrc
         dest: /home/eduardo/.zshrc
 
-    - name: OPT - Copia de programas.
+    - name: User Local - Ajuste do shell do usuario eduardo.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/opt/
-        dest: /opt/
+        src: /etc/ansible/arquivos/cli/.bashrc
+        dest: /home/eduardo/.bashrc
+        backup: yes
 
-    - name: USR/SHARE - Copia de arquivos para icones de programas.
+    - name: User Local - Ajuste do shell de usuario Root.
       ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/usr/share/applications/
-        dest: /usr/share/applications/
+        src: /etc/ansible/arquivos/cli/.bashrc
+        dest: /root/.bashrc
+        backup: yes
+
+    - name: SSH - Copia das chaves ssh do cliente HW.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/cli/.ssh/
+        dest: /home/eduardo/.ssh/
 
     - name: Config - Copia das configuracoes dos programas.
       ansible.builtin.copy:
         src: /etc/ansible/arquivos/cli/home/.config/
         dest: /home/eduardo/.config/
 
-    - name: SSH - Copia das chaves ssh do cliente HW.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/.ssh/
-        dest: /home/eduardo/.ssh/
-
-#    - name: Flatpak - Copia das configuracoes dos programas em flatpak.
-#      ansible.builtin.copy:
-#        src: /etc/ansible/arquivos/cli/home/eduardo/.var/app/
-#        dest: /home/eduardo/.var/app/
-
     - name: KVM - Ajuste local.
       shell: adduser eduardo libvirt
-
-#    - name: Nvidia - Instalacao de bibliotecas 32 bits e 64 bits.
-#      shell: dpkg --add-architecture i386 -y && apt update && apt install -y nvidia-driver-libs:i386
 
     - name: Flatpack - Adicionar repositorio flatpack no sistema.
       shell: flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
@@ -129,16 +123,12 @@
 #          - com.discordapp.Discord
 #          - com.anydesk.Anydesk
 
-    - name: User Local - Ajuste do shell do usuario eduardo.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/.bashrc
-        dest: /home/eduardo/.bashrc
-        backup: yes
+#    - name: Flatpak - Copia das configuracoes dos programas em flatpak.
+#      ansible.builtin.copy:
+#        src: /etc/ansible/arquivos/cli/home/eduardo/.var/app/
+#        dest: /home/eduardo/.var/app/
 
-    - name: User Local - Ajuste do shell de usuario Root.
-      ansible.builtin.copy:
-        src: /etc/ansible/arquivos/cli/home/.bashrc
-        dest: /root/.bashrc
-        backup: yes
+#    - name: Nvidia - Instalacao de bibliotecas 32 bits e 64 bits.
+#      shell: dpkg --add-architecture i386 -y && apt update && apt install -y nvidia-driver-libs:i386
 
 ...
