@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Bitwarden
+Comment=A secure and free password manager for all of your devices
+Exec=/opt/bitwarden/Bitwarden-2024.4.1-x86_64.AppImage
+Icon=/opt/bitwarden/bitwarden.png
+Terminal=false
+Type=Application
+Categories=System
