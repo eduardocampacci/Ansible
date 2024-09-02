@@ -25,7 +25,7 @@
         - iwatch               # Monitoramento arquivos e diretorios.
         - msmtp                # Programa simples para envio de emails.
         - msmtp-mta            # Servidor simples MTA para envio de e-mails.
-        #- bsd-mailx            # Cliente de linha de comando para envio de emails manual.
+        - bsd-mailx            # Cliente de linha de comando para envio de emails manual.
         - apticron             # Checagem em tempos por atualizacoes no Debian e notifica por email.
         - logwatch             # Inforcoes do estado do sistema, envio diario por e-mail.
         - bash-completion      # Opcao mais completa para completar comandos do bash.
@@ -34,11 +34,19 @@
         - zstd                 # Compactador zst.
         #- openssh-server       # Servidor SSH.
         - apt-transport-https # Transporte do APT para descarregar via Protocolo Seguro HTTP (HTTPS).
-        - build-essential     # Dependencia para compilacao do bacula-fd.
-        - zlib1g-dev          # Dependencia para compilacao do bacula-fd.
-        - liblzo2-dev         # Dependencia para compilacao do bacula-fd.
-        - libacl1-dev         # Dependencia para compilacao do bacula-fd.
-        - libssl-dev          # Dependencia para compilacao do bacula-fd.
+        #- build-essential     # Dependencia para compilacao do bacula-fd.
+        #- zlib1g-dev          # Dependencia para compilacao do bacula-fd.
+        #- liblzo2-dev         # Dependencia para compilacao do bacula-fd.
+        #- libacl1-dev         # Dependencia para compilacao do bacula-fd.
+        #- libssl-dev          # Dependencia para compilacao do bacula-fd.
+
+    - name: GRUB - Copia de arquivo e backup.
+      ansible.builtin.copy:
+        src: /etc/ansible/arquivos/srv/grub
+        dest: /etc/default/grub
+
+    - name: GRUB - Recriar o grub com a opcao default.
+      shell: update-grub2
 
     - name: User Local - Garantir existencia do grupo "wheel".
       ansible.builtin.group:

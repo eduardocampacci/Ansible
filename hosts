@@ -26,7 +26,4 @@
 #192.168.1.9		#vmeduardo
 
 [vms]
-192.168.1.163:839	# vm_teste
-
-[cli]
-192.168.1.163:839	# cliente_teste
+192.168.122.2:839	# vm_debian12_modelo
